@@ -3,18 +3,35 @@ import { exec } from 'child_process';
 import * as fs from 'fs';
 
 export function activate(context: vscode.ExtensionContext) {
-    console.log('Congratulations, your extension "bdit" is now active!');
+    console.log('Congratulations, your "bdit" is now active!');
 
-    const disposable = vscode.commands.registerCommand('bdit.generateComponent', () => {
+    
+
+    const disposable = vscode.commands.registerCommand('bdit.generateComponent', async () => {
+
+        const componentType = await vscode.window.showQuickPick(['sidebar', 'button', 'card', 'section'], {
+            placeHolder: 'Ingrese el tipo de componente',
+        });
+
+        // Solicitar el color
+        const color = await vscode.window.showQuickPick(['azul', 'rojo', 'verde', 'amarillo'], {
+            placeHolder: 'Seleccione un color'
+        });
+
+        if (!color) {
+            vscode.window.showErrorMessage('Color no proporcionado.');
+            return;
+        }
+
         const pythonPath = vscode.Uri.joinPath(
             vscode.Uri.file(context.extensionPath),
             'src/untitled.py'
         ).fsPath;
         
         const pythonCmd = process.platform === "win32" ? "python" : "python3";
-        const comando = `${pythonCmd} "${pythonPath}" template_sidebar --color azul`;
+        const comando = `${pythonCmd} "${pythonPath}" template_${componentType} --color ${color}`;
 
-        vscode.window.showInformationMessage('WORKEANDO!' + comando);
+        vscode.window.showInformationMessage('!!WORKEANDO!' + comando);
 
         exec(comando, (error, stdout, stderr) => {
             if (error) {
